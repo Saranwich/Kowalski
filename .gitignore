@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Secrets (bot token, LLM API key)
+.env
+
+# SQLite data — never commit the user's data
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+plan.local.md
