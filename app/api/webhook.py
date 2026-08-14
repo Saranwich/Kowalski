@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+from app.services import message
 import traceback
 router = APIRouter()
 
@@ -13,10 +14,7 @@ async def webhook(request: Request):
                 # text message
                 if (event["message"]["type"] == "text" ) :
                     #go to message services
-                    print("\n\n---------------\n\n")
-                    print(f"type: {event["type"]}\nmessage-text: {event["message"]["text"]}")
-                    print(f"replytoken: {event["replyToken"]}\nsource: {event["source"]["userId"]}\n")
-
+                    await message.replies(event["replyToken"], event["message"]["text"])
                 # sticker message
                 elif (event["message"]["type"] == "sticker" ):
                     print(event, len(event))
