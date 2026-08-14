@@ -2,13 +2,11 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.api import health
+
 @asynccontextmanager
-async def lifespan ():
+async def lifespan (app: FastAPI):
     yield
 
-app = FastAPI(lifespan)
+app = FastAPI(lifespan=lifespan)
 
-app.include_router(health)
-
-
-
+app.include_router(health.router)
