@@ -17,15 +17,15 @@ async def webhook(request: Request):
                     await message.replies(event["replyToken"], event["message"]["text"])
                 # sticker message
                 elif (event["message"]["type"] == "sticker" ):
-                    print(event, len(event))
+                    print(event)
 
                 # images message
                 elif (event["message"]["type"] == "image"):
-                    print(event, len(event))
+                    print(event)
 
                 # images message
                 elif (event["message"]["type"] == "video"):
-                    print(event, len(event))
+                    print(event)
 
                 # other message type
                 else :
@@ -35,10 +35,9 @@ async def webhook(request: Request):
             #other event
             else :
                 print(f"not valid event type")
-
-                
         
     except Exception as e:
         print(f"something went wrong {e}")
         traceback.print_exc()
+        
     return {}
