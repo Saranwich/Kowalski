@@ -1,6 +1,6 @@
 import httpx
 from traceback import print_exc
-from app.core.config import LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET
+from app.core.config import LINE_CHANNEL_ACCESS_TOKEN
 
 async def replies_message (reply_token, text):
     print(f"reply token: {reply_token}\ntext: {text}")
