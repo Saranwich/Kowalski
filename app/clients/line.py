@@ -11,7 +11,6 @@ async def replies_message (reply_token, text):
                 headers= {"Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}"},
                 json={"replyToken": reply_token,
                     "messages":[
-                        {"type": "text", "text" : "you said"},
                         {"type": "text", "text" : text}
                         ]
                     }
