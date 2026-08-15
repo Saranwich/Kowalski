@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from app.services import message, auth
 import traceback
 import json
 router = APIRouter()
 
 @router.post("/api/webhook")
-async def webhook(request: Request):
+async def webhook(request: Request, bg_task: BackgroundTasks):
     header = dict(request.headers)
     sig = header.get("x-line-signature")
     if sig is None : 
@@ -29,7 +29,7 @@ async def webhook(request: Request):
                 # text message
                 if (event["message"]["type"] == "text" ) :
                     #go to message services
-                    await message.replies_line_with_typhoon(event["replyToken"], event["message"]["text"])
+                    bg_task.add_task(message.replies_line_with_typhoon,event["replyToken"], event["message"]["text"])
                 # sticker message
                 elif (event["message"]["type"] == "sticker" ):
                     print(event)
