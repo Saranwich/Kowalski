@@ -1,12 +1,27 @@
-from fastapi import APIRouter, Request
-from app.services import message
+from fastapi import APIRouter, Request, HTTPException
+from app.services import message, auth
 import traceback
+import json
 router = APIRouter()
 
 @router.post("/api/webhook")
 async def webhook(request: Request):
+    header = dict(request.headers)
+    sig = header.get("x-line-signature")
+    if sig is None : 
+        print("header-x-line-signature not found ")
+        raise HTTPException(status_code=400)
+    raw_body = await request.body()
+    if not auth.is_valid_line_signature(raw_body,sig) : 
+        print("not valid signature")
+        raise HTTPException(status_code=400)
     try :
-        body = await request.json()
+        body = json.loads(raw_body)
+
+        print(raw_body,end="\n\n--------------\n\n")
+
+        # verify - line signature
+
         events = body["events"]
         for event in events:
             if (event["type"] == "message") :
@@ -39,5 +54,5 @@ async def webhook(request: Request):
     except Exception as e:
         print(f"something went wrong {e}")
         traceback.print_exc()
-        
+        return e
     return {}
