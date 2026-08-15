@@ -29,7 +29,7 @@ async def webhook(request: Request):
                 # text message
                 if (event["message"]["type"] == "text" ) :
                     #go to message services
-                    await message.replies(event["replyToken"], event["message"]["text"])
+                    await message.replies_line_with_typhoon(event["replyToken"], event["message"]["text"])
                 # sticker message
                 elif (event["message"]["type"] == "sticker" ):
                     print(event)
