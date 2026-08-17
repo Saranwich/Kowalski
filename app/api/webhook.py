@@ -54,5 +54,5 @@ async def webhook(request: Request, bg_task: BackgroundTasks):
     except Exception as e:
         print(f"something went wrong {e}")
         traceback.print_exc()
-        return e
+        return {}
     return {}
