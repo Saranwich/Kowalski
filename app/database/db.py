@@ -29,11 +29,11 @@ def save_message(line_user_id:str, role : str, content: str):
     conn.commit()
     conn.close()
 
-def get_recent_messages (limit: int = 5):
+def get_recent_messages_by_lineid (line_user_id, limit: int = 5):
     with sqlite3.connect(DB_PATH) as conn:
         dt = conn.execute(
-            "SELECT role, content FROM messages ORDER BY id DESC LIMIT ?",
-            (limit,)
+            "SELECT role, content FROM messages WHERE line_user_id = ? ORDER BY id DESC LIMIT ?",
+            (line_user_id, limit)
             ).fetchall()
     conn.close()
     messages = []
