@@ -34,7 +34,7 @@ async def webhook(request: Request, bg_task: BackgroundTasks):
                         continue
 
                     if event["message"]["text"][0] == "/":
-                        bg_task.add_task(command.do_command,event["source"]["userId"],  event["message"]["text"])
+                        bg_task.add_task(command.do_command, event["source"]["userId"], event["replyToken"], event["message"]["text"])
 
                     #go to message services
                     else : 
