@@ -11,6 +11,16 @@ def init_db():
             role    TEXT NOT NULL,
             content  TEXT NOT NULL,
             created_at TEXT NOT NULL
+        )""")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS tasks (
+            id      INTEGER PRIMARY KEY,
+            line_user_id TEXT,
+            title    TEXT NOT NULL,
+            desc  TEXT,
+            due_to TEXT,
+            noti BOOL NOT NULL,
+            created_at TEXT NOT NULL
         )
     """)
     conn.commit()
@@ -40,6 +50,21 @@ def get_recent_messages_by_lineid (line_user_id, limit: int = 5):
     for row in dt[::-1]:
         messages.append(dict({"role":row[0], "content":row[1]}))
     return messages
+
+def save_task(line_user_id:str, title:str, desc:str, due_to, noti:bool = True):
+    conn:sqlite3.Connection = sqlite3.connect(DB_PATH)
+    conn.execute(
+        "INSERT INTO tasks (line_user_id, title, desc, due_to, noti, created_at) VALUES (?,?,?,?,?,?)",
+        (
+            line_user_id,
+            title,
+            desc,
+            due_to,
+            noti,
+            _get_time()
+        ))
+    conn.commit()
+    conn.close()
 
 def _get_time ():
     dt =  datetime.datetime.now(tz=datetime.timezone.utc).isoformat()

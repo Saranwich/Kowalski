@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
-from app.services import message, auth
+from app.services import message, auth, command
 import traceback
 import json
 
@@ -29,8 +29,16 @@ async def webhook(request: Request, bg_task: BackgroundTasks):
 
                 # text message
                 if (event["message"]["type"] == "text" ) :
+
+                    if (event["message"]["text"] == ""):
+                        continue
+
+                    if event["message"]["text"][0] == "/":
+                        bg_task.add_task(command.do_command,event["source"]["userId"],  event["message"]["text"])
+
                     #go to message services
-                    bg_task.add_task(message.replies_line_with_typhoon, event["source"]["userId"], event["replyToken"], event["message"]["text"])
+                    else : 
+                        bg_task.add_task(message.replies_line_with_typhoon, event["source"]["userId"], event["replyToken"], event["message"]["text"])
 
                 # sticker message
                 elif (event["message"]["type"] == "sticker" ):
