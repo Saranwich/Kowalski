@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kowalski — Moodle API Interface</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #637083;
+      --paper: #f4f7f9;
+      --panel: #ffffff;
+      --line: #d9e1e8;
+      --accent: #006c67;
+      --accent-soft: #dff4f1;
+      --warning: #8a4b08;
+      --warning-soft: #fff1d6;
+      --code: #10242b;
+      --code-ink: #d9f1ee;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "Noto Sans Thai", sans-serif;
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); }
+
+    header {
+      color: white;
+      background: linear-gradient(135deg, #073c46, #007f77);
+      padding: 64px 24px 52px;
+    }
+
+    header > div,
+    main,
+    footer {
+      width: min(1080px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { margin: 0 0 12px; font-size: clamp(2rem, 5vw, 3.5rem); }
+    h2 { margin-top: 0; font-size: 1.55rem; }
+    h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    p { margin: 0 0 12px; }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0;
+      color: #d9f3f0;
+      font-size: 1.08rem;
+    }
+
+    main { padding: 32px 0 56px; }
+
+    section {
+      margin-bottom: 24px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 8px 24px rgb(30 55 65 / 6%);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcfd;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 12px 4px 2px;
+      white-space: nowrap;
+    }
+
+    .flow span {
+      padding: 10px 14px;
+      border: 1px solid #b7d9d5;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      font-weight: 700;
+    }
+
+    .flow b { color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .94rem;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f6f8fa;
+      font-size: .8rem;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    code {
+      padding: .1em .35em;
+      border-radius: 5px;
+      color: #075b57;
+      background: #eaf3f2;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 12px 0 20px;
+      padding: 16px;
+      border-radius: 11px;
+      color: var(--code-ink);
+      background: var(--code);
+      font: .86rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font: inherit;
+    }
+
+    .endpoint {
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .88rem;
+    }
+
+    .callout {
+      padding: 15px 17px;
+      border-left: 4px solid var(--warning);
+      border-radius: 8px;
+      color: #5a390f;
+      background: var(--warning-soft);
+    }
+
+    .muted { color: var(--muted); }
+
+    footer {
+      padding: 0 0 40px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    @media (max-width: 760px) {
+      header { padding-top: 42px; }
+      .grid { grid-template-columns: 1fr; }
+      section { padding: 18px; }
+      .flow { justify-content: flex-start; }
+      .table-wrap { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="badge">READ-ONLY INTEGRATION</div>
+      <h1>Moodle API Interface</h1>
+      <p class="subtitle">
+        สัญญาการเชื่อมต่อระหว่าง Kowalski กับ TU Moodle และ CS CourseWeb
+        สำหรับอ่านรายวิชา การบ้าน สถานะการส่ง และกิจกรรมที่กำลังจะถึง
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>ภาพรวม</h2>
+      <p>
+        ทั้งสองเว็บใช้ Moodle และเปิด <strong>Official Mobile Web Service</strong>
+        จึงเรียกข้อมูลผ่าน JSON API ได้โดยตรง การ scrape HTML ใช้เป็น fallback เท่านั้น
+      </p>
+      <div class="flow" aria-label="Integration flow">
+        <span>.env credentials</span><b>→</b>
+        <span>Temporary token</span><b>→</b>
+        <span>Moodle REST API</span><b>→</b>
+        <span>Normalized tasks</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>ระบบต้นทาง</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="badge">MOODLE 4.1.15+</div>
+          <h3>TU Moodle</h3>
+          <p><a href="https://moodle.tu.ac.th/">https://moodle.tu.ac.th/</a></p>
+          <p class="muted">Environment keys</p>
+          <p><code>TU_moodle_username</code><br><code>TU_moodle_password</code></p>
+          <p class="endpoint">Auth: /login/token.php</p>
+          <p class="endpoint">REST: /webservice/rest/server.php</p>
+        </article>
+
+        <article class="card">
+          <div class="badge">MOODLE 3.6.1</div>
+          <h3>CS CourseWeb</h3>
+          <p><a href="https://courses.cs.tu.ac.th/">https://courses.cs.tu.ac.th/</a></p>
+          <p class="muted">Environment keys</p>
+          <p><code>cs_courses_web_username</code><br><code>cs_courses_web_password</code></p>
+          <p class="endpoint">Auth: /login/token.php</p>
+          <p class="endpoint">REST: /webservice/rest/server.php</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>1. Authentication</h2>
+      <p>ส่งแบบ <code>application/x-www-form-urlencoded</code> ไปยัง auth endpoint ของเว็บนั้น</p>
+
+      <pre><code>POST {base_url}/login/token.php
+
+username={username_from_env}
+password={password_from_env}
+service=moodle_mobile_app</code></pre>
+
+      <p>Response สำเร็จ</p>
+      <pre><code>{
+  "token": "&lt;temporary-access-token&gt;",
+  "privatetoken": "&lt;optional-private-token&gt;"
+}</code></pre>
+
+      <p>Response ล้มเหลว</p>
+      <pre><code>{
+  "error": "Invalid login, please try again",
+  "errorcode": "invalidlogin"
+}</code></pre>
+
+      <div class="callout">
+        Token มีสิทธิ์เทียบเท่าบัญชีผู้ใช้ ห้าม log, commit หรือส่งกลับไปใน Telegram
+        ใช้ในหน่วยความจำและขอใหม่เมื่อหมดอายุ
+      </div>
+    </section>
+
+    <section>
+      <h2>2. รูปแบบ REST Call</h2>
+      <p>ทุกฟังก์ชันใช้ endpoint เดียวกัน ต่างกันที่ค่า <code>wsfunction</code></p>
+
+      <pre><code>POST {base_url}/webservice/rest/server.php
+
+wstoken={token}
+wsfunction={function_name}
+moodlewsrestformat=json
+...function_parameters</code></pre>
+
+      <p>รูปแบบ error กลาง</p>
+      <pre><code>{
+  "exception": "moodle_exception",
+  "errorcode": "...",
+  "message": "..."
+}</code></pre>
+    </section>
+
+    <section>
+      <h2>3. Read Interfaces ที่ทดสอบแล้ว</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>wsfunction</th>
+              <th>Input สำคัญ</th>
+              <th>ใช้ทำอะไร</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>core_webservice_get_site_info</code></td>
+              <td>ไม่มี</td>
+              <td>อ่าน user id, รุ่น Moodle และรายชื่อฟังก์ชันที่ token เรียกได้</td>
+            </tr>
+            <tr>
+              <td><code>core_enrol_get_users_courses</code></td>
+              <td><code>userid</code></td>
+              <td>อ่านรายวิชาที่ผู้ใช้ลงทะเบียน</td>
+            </tr>
+            <tr>
+              <td><code>mod_assign_get_assignments</code></td>
+              <td><code>courseids[]</code> (optional)</td>
+              <td>อ่าน assignment, เวลาเปิดรับ, deadline และ cutoff</td>
+            </tr>
+            <tr>
+              <td><code>mod_assign_get_submission_status</code></td>
+              <td><code>assignid</code></td>
+              <td>ตรวจว่าส่งแล้วหรือยัง ยังแก้ไขได้หรือไม่ และถูกตรวจหรือยัง</td>
+            </tr>
+            <tr>
+              <td><code>core_calendar_get_calendar_upcoming_view</code></td>
+              <td><code>courseid</code> (optional)</td>
+              <td>อ่านกิจกรรมที่กำลังจะมาถึง รวม quiz, attendance และ due event</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. ตัวอย่าง Request / Response</h2>
+
+      <h3>อ่านรายวิชา</h3>
+      <pre><code>wsfunction=core_enrol_get_users_courses
+userid=12345</code></pre>
+      <pre><code>[
+  {
+    "id": 917,
+    "shortname": "CS213691",
+    "fullname": "CS213 DATA STRUCTURES"
+  }
+]</code></pre>
+
+      <h3>อ่านรายการ assignment</h3>
+      <pre><code>wsfunction=mod_assign_get_assignments</code></pre>
+      <pre><code>{
+  "courses": [
+    {
+      "id": 917,
+      "shortname": "CS213691",
+      "assignments": [
+        {
+          "id": 3665,
+          "cmid": 18289,
+          "name": "Assignment#1-Linked List",
+          "allowsubmissionsfromdate": 1789146000,
+          "duedate": 1790873940,
+          "cutoffdate": 0
+        }
+      ]
+    }
+  ],
+  "warnings": []
+}</code></pre>
+
+      <h3>อ่านสถานะการส่ง</h3>
+      <pre><code>wsfunction=mod_assign_get_submission_status
+assignid=3665</code></pre>
+      <pre><code>{
+  "lastattempt": {
+    "submission": {
+      "status": "new",
+      "timemodified": 1789588282
+    },
+    "submissionsenabled": true,
+    "canedit": true,
+    "cansubmit": false,
+    "locked": false,
+    "graded": false
+  },
+  "warnings": []
+}</code></pre>
+
+      <p class="muted">
+        งานกลุ่มอาจคืนสถานะใน <code>lastattempt.teamsubmission</code>
+        แทน <code>lastattempt.submission</code> ตัว adapter ต้องรองรับทั้งสองแบบ
+      </p>
+    </section>
+
+    <section>
+      <h2>5. การตีความเป็น Task</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>เงื่อนไขจาก Moodle</th>
+              <th>สถานะใน Kowalski</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>status = submitted</code></td>
+              <td><code>submitted</code></td>
+            </tr>
+            <tr>
+              <td><code>status = new</code> และยังไม่ถึง <code>duedate</code></td>
+              <td><code>pending</code></td>
+            </tr>
+            <tr>
+              <td>เลย <code>duedate</code> แต่ <code>canedit = true</code> และยังไม่ถึง <code>cutoffdate</code></td>
+              <td><code>late_but_open</code></td>
+            </tr>
+            <tr>
+              <td>เลย deadline และแก้ไขไม่ได้</td>
+              <td><code>overdue</code></td>
+            </tr>
+            <tr>
+              <td><code>graded = true</code></td>
+              <td><code>graded</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted">
+        ใช้ timezone <code>Asia/Bangkok</code> และเก็บเวลาเดิมเป็น Unix timestamp
+        ก่อนแปลงเป็น ISO 8601 ตอน normalize
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Adapter Contract</h2>
+      <pre><code>interface CoursePortal {
+  authenticate(): Promise&lt;PortalSession&gt;
+  listCourses(session): Promise&lt;Course[]&gt;
+  listAssignments(session, courseIds?): Promise&lt;Assignment[]&gt;
+  getSubmissionStatus(session, assignmentId): Promise&lt;SubmissionStatus&gt;
+  listUpcomingEvents(session): Promise&lt;CalendarEvent[]&gt;
+}</code></pre>
+
+      <p>
+        ให้สร้าง adapter คนละ instance สำหรับ <code>tu_moodle</code> และ
+        <code>cs_courses_web</code> แต่ใช้ implementation เดียวกันได้
+        เพราะ protocol เป็น Moodle REST เหมือนกัน
+      </p>
+      <p>
+        ID ในฐานข้อมูลควรเติม namespace เช่น
+        <code>tu_moodle:assign:21997</code> เพื่อป้องกันเลข ID จากสองเว็บชนกัน
+      </p>
+    </section>
+
+    <section>
+      <h2>7. ขอบเขตความปลอดภัย</h2>
+      <ul>
+        <li>อ่าน credential จาก <code>.env</code> เท่านั้น และ commit เฉพาะ <code>.env.example</code></li>
+        <li>ห้ามบันทึก password, access token, cookie หรือ raw login response ลง log</li>
+        <li>เริ่มจาก read-only functions เท่านั้น ไม่เรียก API ส่งงาน แก้ไฟล์ หรือแก้สถานะ</li>
+        <li>เก็บ raw probe และ session artifacts ไว้ใน <code>scratch/</code> ซึ่ง Git ignore แล้ว</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    ตรวจสอบกับระบบจริงเมื่อ 24 กันยายน 2026 · เอกสารนี้ไม่มี credential หรือ access token
+  </footer>
+</body>
+</html>
